@@ -1,4 +1,7 @@
 import sys
+from socket import *
+import time
+import concurrent.futures
 import pdb
 
 ARGS_NUMBER = 2
@@ -26,6 +29,27 @@ class Neighbours:
         self.distance = distance
 
 
+def udp_client(_parent_router):
+    while True:
+        server_name = 'localhost'
+        for child in _parent_router.neighbours:
+            message_to_send = f'hello router {child.name} I am your parent {parent_router.name}'
+            server_port = int(child.port)
+            client_socket = socket(AF_INET, SOCK_DGRAM)
+            client_socket.sendto(str.encode(message_to_send), (server_name, server_port))
+            client_socket.close()
+        time.sleep(1)
+
+
+def udp_server(_parent_router):
+    server_port = int(_parent_router.port)
+    server_socket = socket(AF_INET, SOCK_DGRAM)
+    server_socket.bind(('localhost', server_port))
+    while 1:
+        message, client_address = server_socket.recvfrom(2048)
+        print(f'I am server {_parent_router.name}, I have recieved data= {message} from port {client_address}')
+
+
 if len(sys.argv) == ARGS_NUMBER:
     f = open(sys.argv[FILE_NAME], "r")
     line_counter = 0
@@ -50,6 +74,14 @@ if len(sys.argv) == ARGS_NUMBER:
             parent_router.add_neighbour(child_router)
         line_counter += 1
 
-    for i in parent_router.neighbours:
-        print('Parent name = ', parent_router.name, 'child name->', i.name)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        executor.submit(udp_client, parent_router)
+        executor.submit(udp_server, parent_router)
+        executor.shutdown()
+    # udp_client(parent_router)
+    #
+    # udp_server()
+
+    # client code
+
 
