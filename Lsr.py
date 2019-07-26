@@ -10,6 +10,7 @@ ROUTER_NAME = 0
 PARENT_PORT = 1
 CHILD_PORT = 2
 DISTANCE = 1
+UPDATE_INTERVAL = 1
 
 
 class Router:
@@ -38,14 +39,14 @@ def udp_client(_parent_router):
             client_socket = socket(AF_INET, SOCK_DGRAM)
             client_socket.sendto(str.encode(message_to_send), (server_name, server_port))
             client_socket.close()
-        time.sleep(1)
+        time.sleep(UPDATE_INTERVAL)
 
 
 def udp_server(_parent_router):
     server_port = int(_parent_router.port)
     server_socket = socket(AF_INET, SOCK_DGRAM)
     server_socket.bind(('localhost', server_port))
-    while 1:
+    while True:
         message, client_address = server_socket.recvfrom(2048)
         print(f'I am server {_parent_router.name}, I have recieved data= {message} from port {client_address}')
 

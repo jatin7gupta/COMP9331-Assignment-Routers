@@ -1,0 +1,31 @@
+Server
+-receive the requests and update a global queue object which can be accessed by the client to send data
+-queue in global
+
+
+Client
+check that who to send the data, and send it to all children expect him.
+ send 2 packets, one for my data  and one for received data
+
+1. dont send the parent's data to parent, if you have received his data
+
+2. Restricting link broadcast: to stop this make a hash of the data and see if we need to send it or not
+    Might not work when the failed router comes back
+
+
+create a json to send data to send
+{
+    sender: name,
+    port: port,
+    neighbours: {
+        name : {
+            distance: distance,
+            port: port
+        }
+        name: {
+            distance: distance,
+            port: port
+        }
+
+    }
+}
