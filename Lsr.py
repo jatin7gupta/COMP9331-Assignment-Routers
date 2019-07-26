@@ -23,6 +23,13 @@ class Router:
         self.neighbours.append(neighbour)
 
 
+class Message:
+    def __init__(self, sender: Router):
+        self.port = sender.port
+        self.name = sender.name
+        self.neighbours = sender.neighbours
+
+
 class Neighbours:
     def __init__(self, name, port, distance):
         self.name = name
