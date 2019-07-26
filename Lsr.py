@@ -1,5 +1,5 @@
 import sys
-from socket import *
+import socket as s
 import time
 import concurrent.futures
 import pdb
@@ -43,7 +43,7 @@ def udp_client(_parent_router):
         for child in _parent_router.neighbours:
             message_to_send = f'hello router {child.name} I am your parent {parent_router.name}'
             server_port = int(child.port)
-            client_socket = socket(AF_INET, SOCK_DGRAM)
+            client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
             client_socket.sendto(str.encode(message_to_send), (server_name, server_port))
             client_socket.close()
         time.sleep(UPDATE_INTERVAL)
@@ -51,7 +51,7 @@ def udp_client(_parent_router):
 
 def udp_server(_parent_router):
     server_port = int(_parent_router.port)
-    server_socket = socket(AF_INET, SOCK_DGRAM)
+    server_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
     server_socket.bind(('localhost', server_port))
     while True:
         message, client_address = server_socket.recvfrom(2048)
@@ -86,10 +86,6 @@ if len(sys.argv) == ARGS_NUMBER:
         executor.submit(udp_client, parent_router)
         executor.submit(udp_server, parent_router)
         executor.shutdown()
-    # udp_client(parent_router)
-    #
-    # udp_server()
 
-    # client code
 
 
