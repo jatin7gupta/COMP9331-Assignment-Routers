@@ -1,13 +1,18 @@
-import time
+import pickle
 
-var_not_in_loop_below = 78
-counter = 0
-while True:
-    counter += 1
-    if counter <= 1:
-        dummy_text = "Dummy"
-    else:
-        dummy_text = "Dummies"
-    print(str(counter) + " " + dummy_text)
-    time.sleep(2)
-    loop_var = 42
+class B:
+    def __init__(self, a_list):
+        self.b = 2
+        self.obj = a_list
+
+class A:
+    def __init__(self, b):
+        self.a = 1
+        self.object = b
+
+b1 = B([])
+a1 = A(b1)
+pb1 = pickle.dumps(b1)
+pb2 = pickle.dumps(a1)
+
+print(type(pb1))

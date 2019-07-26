@@ -1,10 +1,9 @@
 import sys
 import socket as s
 import time
-import concurrent.futures
-import json
 import threading
 import pdb
+import pickle
 
 ARGS_NUMBER = 2
 FILE_NAME = 1
@@ -75,7 +74,7 @@ class Router:
 
 class Message:
     def __init__(self, sender: Router):
-        # self.port = sender.port
+        self.port = sender.port
         self.name = sender.name
         self.neighbours = sender.neighbours
         self.sequence_number = 0
@@ -102,9 +101,9 @@ def udp_client(_parent_router):
     # client_socket.bind((SERVER_NAME, int(_parent_router.port)))
     while True:
         for child in _parent_router.neighbours:
-            message_to_send = json.dumps(_parent_router.message, default=convert_to_dict)
+            message_to_send = pickle.dumps(_parent_router.message)
             server_port = int(child.port)
-            client_socket.sendto(str.encode(message_to_send), (SERVER_NAME, server_port))
+            client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
         time.sleep(UPDATE_INTERVAL)
 
 
@@ -115,15 +114,7 @@ def udp_server(_parent_router):
     server_socket.bind((SERVER_NAME, server_port))
     while True:
         message, client_address = server_socket.recvfrom(2048)
-        str_ = message.decode("utf-8")
-        #obj = json.loads(str_, object_hook=dict_to_obj)
-        print(str_)
-
-
-
-
-
-        # print(f'I am server {_parent_router.name}, I have recieved data= {message} from port {client_address}')
+        received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
 
 if len(sys.argv) == ARGS_NUMBER:
@@ -156,11 +147,6 @@ if len(sys.argv) == ARGS_NUMBER:
     server_thread = threading.Thread(target=udp_server, args=(parent_router,))
     client_thread.start()
     server_thread.start()
-
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-    #     executor.submit(udp_client, parent_router)
-    #     executor.submit(udp_server, parent_router)
-    #     executor.shutdown()
 
 
 
