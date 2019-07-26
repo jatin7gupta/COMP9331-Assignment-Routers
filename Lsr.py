@@ -37,9 +37,13 @@ class Router:
         self.name = name
         self.port = port
         self.neighbours = neighbours_list
+        self.message = None
 
     def add_neighbour(self, neighbour):
         self.neighbours.append(neighbour)
+
+    def add_message(self, message):
+        self.message = message
 
 
 class Message:
@@ -104,6 +108,7 @@ if len(sys.argv) == ARGS_NUMBER:
             parent_router.add_neighbour(child_router)
         line_counter += 1
 
+    parent_router.add_message(Message(parent_router))
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         executor.submit(udp_client, parent_router)
         executor.submit(udp_server, parent_router)
