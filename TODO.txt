@@ -12,6 +12,7 @@ check that who to send the data, and send it to all children expect him.
 2. Restricting link broadcast: to stop this make a hash of the data and see if we need to send it or not
     Might not work when the failed router comes back
 
+3. When I will implement 2nd part, I will have to make sure if I delete the router from the memeory of all, I should also delete previously sent messages.
 
 create a json to send data to send
 {

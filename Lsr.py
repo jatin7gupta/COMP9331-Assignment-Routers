@@ -95,7 +95,7 @@ def udp_client(_parent_router: Router):
 def udp_server(_parent_router: Router):
     server_port = int(_parent_router.port)
     server_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-    server_socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
+    # server_socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
     server_socket.bind((SERVER_NAME, server_port))
     while True:
         message, client_address = server_socket.recvfrom(2048)
@@ -135,10 +135,13 @@ if len(sys.argv) == ARGS_NUMBER:
 
     # parent_router.add_message(Message(parent_router))
     parent_router.set_message(Message(parent_router))
-    client_thread = threading.Thread(target=udp_client, args=(parent_router,))
-    server_thread = threading.Thread(target=udp_server, args=(parent_router,))
+    # TODO make them daemon
+    client_thread = threading.Thread(target=udp_client, args=(parent_router,), daemon=True)
+    server_thread = threading.Thread(target=udp_server, args=(parent_router,), daemon=True)
     client_thread.start()
+    client_thread.join()
     server_thread.start()
+    server_thread.join()
 
 
 
