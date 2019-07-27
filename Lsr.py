@@ -57,10 +57,6 @@ class Neighbours:
 
 
 def udp_client(_parent_router: Router):
-    # this client will have 2 tasks
-    # 1. send my message to the child DONE
-    # 2. forward the message received, to my child by checking if I have not sent it previously
-
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
     # TODO
     # client_socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
@@ -71,14 +67,6 @@ def udp_client(_parent_router: Router):
             server_port = int(child.port)
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
             _parent_router.add_previous_sent(_parent_router.message)
-            #
-            # while len(_parent_router.queue) > 0:
-            #     message_received_from_neighbour = _parent_router.deque_queue()
-            #     if _parent_router.check_previous_sent(message_received_from_neighbour):
-            #         if child.port != message_received_from_neighbour.port:
-            #             client_socket.sendto(pickle.dumps(message_received_from_neighbour), (SERVER_NAME, server_port))
-            #             _parent_router.add_previous_sent(message_received_from_neighbour)
-
         time.sleep(UPDATE_INTERVAL)
         _parent_router.message.increment_sequence_number()
 
@@ -91,7 +79,6 @@ def udp_server(_parent_router: Router):
     while True:
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
-        # _parent_router.queue.append(received_message)
 
         client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         for child in _parent_router.neighbours:
