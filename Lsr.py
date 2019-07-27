@@ -11,7 +11,7 @@ ROUTER_NAME = 0
 PARENT_PORT = 1
 CHILD_PORT = 2
 DISTANCE = 1
-UPDATE_INTERVAL = 50
+UPDATE_INTERVAL = 1
 SERVER_NAME = 'localhost'
 
 
@@ -92,7 +92,7 @@ class Neighbours:
 
 def udp_client(_parent_router):
     # this client will have 2 tasks
-    # 1. send my message to the child
+    # 1. send my message to the child DONE
     # 2. forward the message received, to my child by checking if I have not sent it previously
 
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
@@ -105,6 +105,7 @@ def udp_client(_parent_router):
             server_port = int(child.port)
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
         time.sleep(UPDATE_INTERVAL)
+        _parent_router.message.increment_sequence_number()
 
 
 def udp_server(_parent_router):
@@ -115,6 +116,10 @@ def udp_server(_parent_router):
     while True:
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
+
+        for i in received_message.neighbours:
+            print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
+
 
 
 if len(sys.argv) == ARGS_NUMBER:
