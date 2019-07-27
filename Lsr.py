@@ -98,12 +98,11 @@ def udp_server(_parent_router: Router):
             if _parent_router.check_previous_sent(received_message):
                 if child.port != received_message.port:
                     client_socket.sendto(pickle.dumps(received_message),
-                                         (SERVER_NAME, server_port))
+                                         (SERVER_NAME, int(child.port)))
                     _parent_router.add_previous_sent(received_message)
 
         for i in received_message.neighbours:
             print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
-
 
 
 if len(sys.argv) == ARGS_NUMBER:
