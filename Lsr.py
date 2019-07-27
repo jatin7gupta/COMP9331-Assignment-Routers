@@ -84,7 +84,7 @@ def udp_client(_parent_router: Router):
             while len(_parent_router.queue) > 0:
                 message_received_from_neighbour = _parent_router.deque_queue()
                 if _parent_router.check_previous_sent(message_received_from_neighbour):
-                    if server_port != message_received_from_neighbour.port:
+                    if child.port != message_received_from_neighbour.port:
                         client_socket.sendto(pickle.dumps(message_received_from_neighbour), (SERVER_NAME, server_port))
                         _parent_router.add_previous_sent(message_received_from_neighbour)
 
