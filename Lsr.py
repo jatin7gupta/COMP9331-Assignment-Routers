@@ -136,12 +136,10 @@ if len(sys.argv) == ARGS_NUMBER:
     # parent_router.add_message(Message(parent_router))
     parent_router.set_message(Message(parent_router))
     # TODO make them daemon
-    client_thread = threading.Thread(target=udp_client, args=(parent_router,), daemon=True)
-    server_thread = threading.Thread(target=udp_server, args=(parent_router,), daemon=True)
+    client_thread = threading.Thread(target=udp_client, args=(parent_router,))
+    server_thread = threading.Thread(target=udp_server, args=(parent_router,))
     client_thread.start()
-    client_thread.join()
     server_thread.start()
-    server_thread.join()
 
 
 
