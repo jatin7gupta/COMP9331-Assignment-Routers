@@ -4,6 +4,7 @@ import time
 import threading
 import pdb
 import pickle
+from collections import defaultdict
 
 ARGS_NUMBER = 2
 FILE_NAME = 1
@@ -11,7 +12,7 @@ ROUTER_NAME = 0
 PARENT_PORT = 1
 CHILD_PORT = 2
 DISTANCE = 1
-UPDATE_INTERVAL = 4
+UPDATE_INTERVAL = 10
 SERVER_NAME = 'localhost'
 
 
@@ -22,9 +23,11 @@ class Router:
         self.neighbours = neighbours_list
         self.message = None
         self.previous_sent_messages = set()
+        self.global_routers = defaultdict(list)
 
     def add_neighbour(self, neighbour):
         self.neighbours.append(neighbour)
+        self.global_routers[self.name].append(neighbour)
 
     def set_message(self, message):
         self.message = message
@@ -36,6 +39,21 @@ class Router:
     def check_previous_sent(self, message):
         m = (message.port, message.sequence_number)
         return m not in self.previous_sent_messages
+
+    def update_global_routers(self, message):
+        if len(self.global_routers[message.name]) > 0:
+            for neighbour in message.neighbours:
+                present = False
+                for present_neighbour in self.global_routers[message.name]:
+                    if present_neighbour.port == neighbour.port \
+                            and present_neighbour.name == neighbour.name \
+                            and present_neighbour.distance == neighbour.distance:
+                        present = True
+                if not present:
+                    self.global_routers[message.name].append(neighbour)
+        else:
+            for neighbour in message.neighbours:
+                self.global_routers[message.name].append(neighbour)
 
 
 class Message:
@@ -88,8 +106,10 @@ def udp_server(_parent_router: Router):
                                          (SERVER_NAME, int(child.port)))
                     _parent_router.add_previous_sent(received_message)
 
-        for i in received_message.neighbours:
-            print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
+        _parent_router.update_global_routers(received_message)
+        print(_parent_router.global_routers)
+        # for i in received_message.neighbours:
+        #     print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
 
 
 if len(sys.argv) == ARGS_NUMBER:
@@ -116,7 +136,6 @@ if len(sys.argv) == ARGS_NUMBER:
             parent_router.add_neighbour(child_router)
         line_counter += 1
 
-    # parent_router.add_message(Message(parent_router))
     parent_router.set_message(Message(parent_router))
     # TODO make them daemon
     client_thread = threading.Thread(target=udp_client, args=(parent_router,))
