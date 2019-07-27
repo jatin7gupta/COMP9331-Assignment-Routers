@@ -4,7 +4,6 @@ import time
 import threading
 import pdb
 import pickle
-from collections import deque
 
 ARGS_NUMBER = 2
 FILE_NAME = 1
@@ -22,7 +21,6 @@ class Router:
         self.port = port
         self.neighbours = neighbours_list
         self.message = None
-        self.queue = deque()
         self.previous_sent_messages = set()
 
     def add_neighbour(self, neighbour):
@@ -30,13 +28,6 @@ class Router:
 
     def set_message(self, message):
         self.message = message
-
-    def append_queue(self, message):
-        self.queue.append(message)
-
-    def deque_queue(self):
-        ret_val = self.queue.popleft()
-        return ret_val
 
     def add_previous_sent(self, message):
         m = (message.port, message.sequence_number)
@@ -80,13 +71,13 @@ def udp_client(_parent_router: Router):
             server_port = int(child.port)
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
             _parent_router.add_previous_sent(_parent_router.message)
-
-            while len(_parent_router.queue) > 0:
-                message_received_from_neighbour = _parent_router.deque_queue()
-                if _parent_router.check_previous_sent(message_received_from_neighbour):
-                    if child.port != message_received_from_neighbour.port:
-                        client_socket.sendto(pickle.dumps(message_received_from_neighbour), (SERVER_NAME, server_port))
-                        _parent_router.add_previous_sent(message_received_from_neighbour)
+            #
+            # while len(_parent_router.queue) > 0:
+            #     message_received_from_neighbour = _parent_router.deque_queue()
+            #     if _parent_router.check_previous_sent(message_received_from_neighbour):
+            #         if child.port != message_received_from_neighbour.port:
+            #             client_socket.sendto(pickle.dumps(message_received_from_neighbour), (SERVER_NAME, server_port))
+            #             _parent_router.add_previous_sent(message_received_from_neighbour)
 
         time.sleep(UPDATE_INTERVAL)
         _parent_router.message.increment_sequence_number()
@@ -100,9 +91,15 @@ def udp_server(_parent_router: Router):
     while True:
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
-        _parent_router.queue.append(received_message)
+        # _parent_router.queue.append(received_message)
 
-
+        client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
+        for child in _parent_router.neighbours:
+            if _parent_router.check_previous_sent(received_message):
+                if child.port != received_message.port:
+                    client_socket.sendto(pickle.dumps(received_message),
+                                         (SERVER_NAME, server_port))
+                    _parent_router.add_previous_sent(received_message)
 
         for i in received_message.neighbours:
             print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
