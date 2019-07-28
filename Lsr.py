@@ -122,7 +122,9 @@ def calculate_paths():
         total_routers += 1
 
     counter = 0
+    print(f'I am Router {_parent_router.name}')
     current_router = _parent_router.name
+    printing_routers = _parent_router.name
     while counter != total_routers-1:
         # code for opening up weights
         for edge in g.graph[current_router]:
@@ -132,6 +134,7 @@ def calculate_paths():
 
         min_weight = inf
         min_node = ''
+        router_route = []
         for node, weight_status in calculation_table.items():
             if weight_status[weight] < min_weight and weight_status[visited_status] == False:
                 min_node = node
@@ -139,8 +142,12 @@ def calculate_paths():
 
         calculation_table[min_node][visited_status] = True
         current_router = min_node
+        router_route.append(min_node)
         counter += 1
-    print(calculation_table)
+        printing_routers = printing_routers + min_node
+        # TODO change this before submission
+        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+    # print(calculation_table)
 
 
 def udp_client(_parent_router: Router):
