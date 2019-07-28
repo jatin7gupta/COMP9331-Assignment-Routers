@@ -96,12 +96,13 @@ class Graph:
                 self.graph[parent].append(Edge(parent, child.name, child.distance))
 
 
-def calculate_paths_activator(_parent_router: Router):
+def calculate_paths_activator():
     time.sleep(ROUTER_UPDATE_INTERVAL)
-    calculate_paths(_parent_router)
+    calculate_paths()
 
 
-def calculate_paths(_parent_router: Router):
+def calculate_paths():
+    _parent_router = parent_router
 
     weight = 0
     visited_status = 1
@@ -207,7 +208,7 @@ if len(sys.argv) == ARGS_NUMBER:
     # TODO make them daemon
     client_thread = threading.Thread(target=udp_client, args=(parent_router,))
     server_thread = threading.Thread(target=udp_server, args=(parent_router,))
-    calculation_thread = threading.Thread(target=calculate_paths_activator, args=(parent_router,))
+    calculation_thread = threading.Thread(target=calculate_paths_activator)
     client_thread.start()
     server_thread.start()
     calculation_thread.start()
