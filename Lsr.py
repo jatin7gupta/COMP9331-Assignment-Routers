@@ -121,9 +121,9 @@ def calculate_paths():
         total_routers += 1
 
     counter = 0
+    current_router = _parent_router.name
     while counter != total_routers-1:
         # code for opening up weights
-        current_router = _parent_router.name
         for edge in g.graph[current_router]:
             for node, weight_status in calculation_table.items():
                 if node == edge.end and not weight_status[visited_status] and calculation_table[node][weight] > calculation_table[current_router][weight] + float(edge.weight):
