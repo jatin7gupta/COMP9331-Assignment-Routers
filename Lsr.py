@@ -97,8 +97,9 @@ class Graph:
 
 
 def calculate_paths_activator():
-    time.sleep(ROUTER_UPDATE_INTERVAL)
-    calculate_paths()
+    while True:
+        time.sleep(ROUTER_UPDATE_INTERVAL)
+        calculate_paths()
 
 
 def calculate_paths():
