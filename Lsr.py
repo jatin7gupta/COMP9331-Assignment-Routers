@@ -74,6 +74,26 @@ class Neighbours:
         self.distance = distance
 
 
+class Edge:
+    def __init__(self, u, v, weight):
+        self.start = u
+        self.end = v
+        self.weight = weight
+
+
+class Graph:
+    def __init__(self, global_routers):
+        self.global_routers = global_routers
+        self.graph = defaultdict(list)
+        self.parse(self.global_routers)
+
+    def parse(self, global_routers):
+        for router, neighbours in global_routers.items():
+            parent = router
+            for child in neighbours:
+                self.graph[parent].append(Edge(parent, child.name, child.distance))
+
+
 def udp_client(_parent_router: Router):
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
     # TODO
@@ -107,7 +127,9 @@ def udp_server(_parent_router: Router):
                     _parent_router.add_previous_sent(received_message)
 
         _parent_router.update_global_routers(received_message)
-        print(_parent_router.global_routers)
+        g = Graph(_parent_router.global_routers)
+
+        print(g)
         # for i in received_message.neighbours:
         #     print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
 
