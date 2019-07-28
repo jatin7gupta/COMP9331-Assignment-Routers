@@ -4,7 +4,8 @@ import time
 import threading
 import pdb
 import pickle
-from collections import defaultdict
+from collections import defaultdict, deque
+from math import inf
 
 ARGS_NUMBER = 2
 FILE_NAME = 1
@@ -12,7 +13,8 @@ ROUTER_NAME = 0
 PARENT_PORT = 1
 CHILD_PORT = 2
 DISTANCE = 1
-UPDATE_INTERVAL = 10
+UPDATE_INTERVAL = 1
+ROUTER_UPDATE_INTERVAL = 30
 SERVER_NAME = 'localhost'
 
 
@@ -94,6 +96,51 @@ class Graph:
                 self.graph[parent].append(Edge(parent, child.name, child.distance))
 
 
+def calculate_paths_activator(_parent_router: Router):
+    time.sleep(ROUTER_UPDATE_INTERVAL)
+    calculate_paths(_parent_router)
+
+
+def calculate_paths(_parent_router: Router):
+
+    weight = 0
+    visited_status = 1
+
+    g = Graph(_parent_router.global_routers)
+
+    calculation_table = {}
+    # (name, weight, visited=boolean)
+    total_routers = 0
+    for router in _parent_router.global_routers:
+        if router != _parent_router.name:
+            # filling all the table with name of router
+            calculation_table[router] = [inf, False]
+        else:
+            calculation_table[router] = [0.0, True]
+        total_routers += 1
+
+    counter = 0
+    while counter != total_routers-1:
+        # code for opening up weights
+        current_router = _parent_router.name
+        for edge in g.graph[current_router]:
+            for node, weight_status in calculation_table.items():
+                if node == edge.end and not weight_status[visited_status] and calculation_table[node][weight] > calculation_table[current_router][weight] + float(edge.weight):
+                    calculation_table[node][weight] = calculation_table[current_router][weight] + float(edge.weight)
+
+        min_weight = inf
+        min_node = ''
+        for node, weight_status in calculation_table.items():
+            if weight_status[weight] < min_weight and weight_status[visited_status] == False:
+                min_node = node
+                min_weight = weight_status[weight]
+
+        calculation_table[min_node][visited_status] = True
+        current_router = min_node
+        counter += 1
+    print(calculation_table)
+
+
 def udp_client(_parent_router: Router):
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
     # TODO
@@ -127,9 +174,7 @@ def udp_server(_parent_router: Router):
                     _parent_router.add_previous_sent(received_message)
 
         _parent_router.update_global_routers(received_message)
-        g = Graph(_parent_router.global_routers)
 
-        print(g)
         # for i in received_message.neighbours:
         #     print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
 
@@ -162,8 +207,10 @@ if len(sys.argv) == ARGS_NUMBER:
     # TODO make them daemon
     client_thread = threading.Thread(target=udp_client, args=(parent_router,))
     server_thread = threading.Thread(target=udp_server, args=(parent_router,))
+    calculation_thread = threading.Thread(target=calculate_paths_activator, args=(parent_router,))
     client_thread.start()
     server_thread.start()
+    calculation_thread.start()
 
 
 
