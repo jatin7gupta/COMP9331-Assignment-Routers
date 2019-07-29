@@ -6,6 +6,7 @@ import pdb
 import pickle
 from collections import defaultdict, deque
 from math import inf
+import datetime as dt
 
 ARGS_NUMBER = 2
 FILE_NAME = 1
@@ -24,7 +25,7 @@ class Router:
         self.port = port
         self.neighbours = neighbours_list
         self.message = None
-        self.previous_sent_messages = set()
+        self.previous_sent_messages = defaultdict(float)
         self.global_routers = defaultdict(list)
 
     def add_neighbour(self, neighbour):
@@ -35,12 +36,10 @@ class Router:
         self.message = message
 
     def add_previous_sent(self, message):
-        m = (message.port, message.sequence_number)
-        self.previous_sent_messages.add(m)
+        self.previous_sent_messages[message.name] = message.timestamp
 
     def check_previous_sent(self, message):
-        m = (message.port, message.sequence_number)
-        return m not in self.previous_sent_messages
+        return self.previous_sent_messages[message.name] != message.timestamp
 
     def update_global_routers(self, message):
         if len(self.global_routers[message.name]) > 0:
@@ -64,6 +63,7 @@ class Message:
         self.name = sender.name
         self.neighbours = sender.neighbours
         self.sequence_number = 0
+        self.timestamp = dt.datetime.now().timestamp()
 
     def increment_sequence_number(self):
         self.sequence_number += 1
@@ -147,7 +147,7 @@ def calculate_paths():
         printing_routers = printing_routers + min_node
         # TODO change this before submission
         print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
-    # print(calculation_table)
+    print(calculation_table)
 
 
 def udp_client(_parent_router: Router):
@@ -160,7 +160,6 @@ def udp_client(_parent_router: Router):
             message_to_send = pickle.dumps(_parent_router.message)
             server_port = int(child.port)
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
-            _parent_router.add_previous_sent(_parent_router.message)
         time.sleep(UPDATE_INTERVAL)
         _parent_router.message.increment_sequence_number()
 
@@ -175,17 +174,19 @@ def udp_server(_parent_router: Router):
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
         client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-        for child in _parent_router.neighbours:
-            if _parent_router.check_previous_sent(received_message):
-                if child.port != received_message.port:
-                    client_socket.sendto(pickle.dumps(received_message),
-                                         (SERVER_NAME, int(child.port)))
-                    _parent_router.add_previous_sent(received_message)
+        # TODO : update this with dhan 4 functions
+        # for child in _parent_router.neighbours:
+        #     if _parent_router.check_previous_sent(received_message): # TODO this function will also change: DONE
+        #         if child.port != received_message.port:
+        #             client_socket.sendto(pickle.dumps(received_message),
+        #                                  (SERVER_NAME, int(child.port)))
+        #             _parent_router.add_previous_sent(received_message)  # TODO : I have changed this function
+
+        for neighbour in _parent_router.neighbours:
+            client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
+            _parent_router.add_previous_sent(received_message)
 
         _parent_router.update_global_routers(received_message)
-
-        # for i in received_message.neighbours:
-        #     print(received_message.name,'    --' ,i.name, i.port, received_message.sequence_number)
 
 
 if len(sys.argv) == ARGS_NUMBER:
