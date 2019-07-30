@@ -14,8 +14,8 @@ check that who to send the data, and send it to all children expect him.
 3. When I will implement 2nd part, I will have to make sure if I delete the router from the memory of all, I should also delete previously sent messages. (add_previous_sent)
 
 
-dont send to forwarder
+dont send to forwarder ALI
 dont send the original router DONE
 dont send to common neighbours DONE
 dont send the forwarder neighbour and original router neighbour
-dont send message again and again
+dont send message again and again - sequence no
