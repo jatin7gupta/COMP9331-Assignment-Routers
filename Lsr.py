@@ -7,6 +7,7 @@ import pickle
 from collections import defaultdict, deque
 from math import inf
 import datetime as dt
+from typing import Dict, List, Any, Union
 
 ARGS_NUMBER = 2
 FILE_NAME = 1
@@ -110,7 +111,7 @@ def calculate_paths():
 
     g = Graph(_parent_router.global_routers)
 
-    calculation_table = {}
+    calculation_table: Dict[Any, List[Union[float, bool]]] = {}
     # (name, weight, visited=boolean)
     total_routers = 0
     for router in _parent_router.global_routers:
@@ -152,7 +153,7 @@ def calculate_paths():
 
 def udp_client(_parent_router: Router):
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-    # TODO
+    # TODO bind to one port
     # client_socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
     # client_socket.bind((SERVER_NAME, int(_parent_router.port)))
     while True:
@@ -162,6 +163,13 @@ def udp_client(_parent_router: Router):
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
         time.sleep(UPDATE_INTERVAL)
         _parent_router.message.increment_sequence_number()
+
+
+def check_message_neighbours(my_neighbour: Neighbours, message: Message):
+    for neighbour in message.neighbours:
+        if my_neighbour.name == neighbour.name:
+            return False
+    return True
 
 
 def udp_server(_parent_router: Router):
@@ -174,17 +182,18 @@ def udp_server(_parent_router: Router):
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
         client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-        # TODO : update this with dhan 4 functions
         # for child in _parent_router.neighbours:
-        #     if _parent_router.check_previous_sent(received_message): # TODO this function will also change: DONE
+        #     if _parent_router.check_previous_sent(received_message):
         #         if child.port != received_message.port:
         #             client_socket.sendto(pickle.dumps(received_message),
         #                                  (SERVER_NAME, int(child.port)))
-        #             _parent_router.add_previous_sent(received_message)  # TODO : I have changed this function
+        #             _parent_router.add_previous_sent(received_message)
 
         for neighbour in _parent_router.neighbours:
-            client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
-            _parent_router.add_previous_sent(received_message)
+            #  dont send the original router               dont send original sender's neighbours if they are also my neighbour
+            if received_message.name != neighbour.name and check_message_neighbours(neighbour, received_message):
+                client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
+                _parent_router.add_previous_sent(received_message)
 
         _parent_router.update_global_routers(received_message)
 
@@ -221,6 +230,3 @@ if len(sys.argv) == ARGS_NUMBER:
     client_thread.start()
     server_thread.start()
     calculation_thread.start()
-
-
-
