@@ -53,9 +53,9 @@ class Router:
         for neighbour in self.neighbours:
             if removing_neighbour.name == neighbour.name:
                 self.neighbours.remove(neighbour)
-                self.previous_sent_messages_sequence.pop(neighbour.name, None)
-                self.global_routers_timestamp.pop(neighbour.name, None)
-                self.global_routers.pop(neighbour.name, None)
+                #self.previous_sent_messages_sequence.pop(neighbour.name, None)
+                #self.global_routers_timestamp.pop(neighbour.name, None)
+                #self.global_routers.pop(neighbour.name, None)
 
     def update_global_routers(self, message):
         if len(self.global_routers[message.name]) > 0:
