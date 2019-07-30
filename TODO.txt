@@ -15,6 +15,7 @@ check that who to send the data, and send it to all children expect him.
 
 
 dont send to forwarder
-dont send the original router
-dont send to common neighbours
+dont send the original router DONE
+dont send to common neighbours DONE
 dont send the forwarder neighbour and original router neighbour
+dont send message again and again
