@@ -1,18 +1,33 @@
-import pickle
+def p(c):
+    for j in c:
+        print(j.n, end=' ')
+    print(' ')
 
-class B:
-    def __init__(self, a_list):
-        self.b = 2
-        self.obj = a_list
 
 class A:
-    def __init__(self, b):
-        self.a = 1
-        self.object = b
+    def __init__(self, n):
+        self.n = n
 
-b1 = B([])
-a1 = A(b1)
-pb1 = pickle.dumps(b1)
-pb2 = pickle.dumps(a1)
 
-print(type(pb1))
+l = []
+k = []
+for i in range(5):
+    if i == 2 or i == 3:
+        k.append(A(i))
+    l.append(A(i))
+
+p(l)
+p(k)
+print('after')
+for e in l:
+    for ek in k:
+        if e.n == ek.n:
+            l.remove(e)
+            print(e)
+p(l)
+p(k)
+
+
+
+
+
