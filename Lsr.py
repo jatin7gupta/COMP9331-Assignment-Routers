@@ -209,7 +209,7 @@ def udp_server(_parent_router: Router):
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
-        #client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
+        # client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
         # for child in _parent_router.neighbours:
         #     if _parent_router.check_previous_sent(received_message):
         #         if child.port != received_message.port:
