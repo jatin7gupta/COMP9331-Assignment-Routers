@@ -49,14 +49,6 @@ class Router:
     def check_router_timestamp(self, message):
         return self.global_routers_timestamp[message.name] != message.timestamp
 
-    def remove_neighbour(self, removing_neighbour):
-        for neighbour in self.neighbours:
-            if removing_neighbour.name == neighbour.name:
-                self.neighbours.remove(neighbour)
-                #self.previous_sent_messages_sequence.pop(neighbour.name, None)
-                #self.global_routers_timestamp.pop(neighbour.name, None)
-                #self.global_routers.pop(neighbour.name, None)
-
     def update_global_routers(self, message):
         if len(self.global_routers[message.name]) > 0:
             for neighbour in message.neighbours:
@@ -179,25 +171,6 @@ def udp_client(_parent_router: Router):
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
         time.sleep(UPDATE_INTERVAL)
         _parent_router.message.increment_sequence_number()
-
-
-# def check_message_neighbours(my_neighbour: Neighbours, message: Message):
-#     for neighbour in message.neighbours:
-#         if my_neighbour.name == neighbour.name:
-#             return False
-#     return True
-
-
-def check_alive(_parent_router: Router):
-    while True:
-        time.sleep(4)
-        removing_routers = []
-        for neighbour in _parent_router.neighbours:
-            if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[neighbour.name] > 5:
-                removing_routers.append(neighbour)
-
-        for removing_router in removing_routers:
-            _parent_router.remove_neighbour(removing_router)
 
 
 def udp_server(_parent_router: Router):
