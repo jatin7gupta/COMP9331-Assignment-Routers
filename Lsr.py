@@ -80,6 +80,7 @@ class Message:
         self.neighbours = sender.neighbours
         self.sequence_number = 0
         self.timestamp = dt.datetime.now().timestamp()
+        self.last_sender = sender.name
 
     def increment_sequence_number(self):
         self.sequence_number += 1
@@ -180,11 +181,11 @@ def udp_client(_parent_router: Router):
         _parent_router.message.increment_sequence_number()
 
 
-def check_message_neighbours(my_neighbour: Neighbours, message: Message):
-    for neighbour in message.neighbours:
-        if my_neighbour.name == neighbour.name:
-            return False
-    return True
+# def check_message_neighbours(my_neighbour: Neighbours, message: Message):
+#     for neighbour in message.neighbours:
+#         if my_neighbour.name == neighbour.name:
+#             return False
+#     return True
 
 
 def check_alive(_parent_router: Router):
@@ -218,8 +219,9 @@ def udp_server(_parent_router: Router):
         #             _parent_router.add_previous_sent(received_message)
 
         for neighbour in _parent_router.neighbours:
-            #  dont send the original router               dont send original sender's neighbours if they are also my neighbour
-            if received_message.name != neighbour.name and check_message_neighbours(neighbour, received_message):
+            # dont send to the previous sender
+            if received_message.last_sender != neighbour.name:
+                received_message.last_sender = _parent_router.name
                 client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
                 _parent_router.add_previous_sent_sequence(received_message)
 
@@ -256,8 +258,8 @@ if len(sys.argv) == ARGS_NUMBER:
     client_thread = threading.Thread(target=udp_client, args=(parent_router,))
     server_thread = threading.Thread(target=udp_server, args=(parent_router,))
     calculation_thread = threading.Thread(target=calculate_paths_activator)
-    check_alive_thread = threading.Thread(target=check_alive, args=(parent_router,))
+    # check_alive_thread = threading.Thread(target=check_alive, args=(parent_router,))
     client_thread.start()
     server_thread.start()
     calculation_thread.start()
-    check_alive_thread.start()
+    # check_alive_thread.start()
