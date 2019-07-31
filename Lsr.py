@@ -174,6 +174,10 @@ def check_previous_sent_sequence(message: Message, _parent_router: Router):
     return _parent_router.previous_sent_messages_sequence[message.name] < message.sequence_number
 
 
+def check_previous_sent_timestamp(message: Message, _parent_router: Router):
+    return _parent_router.global_routers_timestamp[message.name] < message.timestamp
+
+
 def udp_server(_parent_router: Router):
     server_port = int(_parent_router.port)
     server_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
@@ -187,7 +191,7 @@ def udp_server(_parent_router: Router):
         last_sender = received_message.last_sender
         for neighbour in _parent_router.neighbours:
             # dont send to the previous sender
-            if last_sender != neighbour.name and check_previous_sent_sequence(received_message, _parent_router):
+            if last_sender != neighbour.name and check_previous_sent_timestamp(received_message, _parent_router):
                 received_message.last_sender = _parent_router.name
                 client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
         _parent_router.add_previous_sent_sequence(received_message)
