@@ -161,9 +161,6 @@ def calculate_paths():
 
 def udp_client(_parent_router: Router):
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-    # TODO bind to one port
-    # client_socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
-    # client_socket.bind((SERVER_NAME, int(_parent_router.port)))
     while True:
         for child in _parent_router.neighbours:
             message_to_send = pickle.dumps(_parent_router.message)
@@ -171,6 +168,10 @@ def udp_client(_parent_router: Router):
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
         time.sleep(UPDATE_INTERVAL)
         _parent_router.message.increment_sequence_number()
+
+
+def check_previous_sent_sequence(message: Message, _parent_router: Router):
+    return _parent_router.previous_sent_messages_sequence[message.name] < message.sequence_number
 
 
 def udp_server(_parent_router: Router):
@@ -183,20 +184,13 @@ def udp_server(_parent_router: Router):
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
-        # client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-        # for child in _parent_router.neighbours:
-        #     if _parent_router.check_previous_sent(received_message):
-        #         if child.port != received_message.port:
-        #             client_socket.sendto(pickle.dumps(received_message),
-        #                                  (SERVER_NAME, int(child.port)))
-        #             _parent_router.add_previous_sent(received_message)
-
+        last_sender = received_message.last_sender
         for neighbour in _parent_router.neighbours:
             # dont send to the previous sender
-            if received_message.last_sender != neighbour.name:
+            if last_sender != neighbour.name and check_previous_sent_sequence(received_message, _parent_router):
                 received_message.last_sender = _parent_router.name
                 client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
-                _parent_router.add_previous_sent_sequence(received_message)
+        _parent_router.add_previous_sent_sequence(received_message)
 
         _parent_router.add_router_timestamp(received_message)
         _parent_router.update_global_routers(received_message)
