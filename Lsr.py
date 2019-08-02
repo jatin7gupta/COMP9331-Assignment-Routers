@@ -8,6 +8,7 @@ from collections import defaultdict, deque
 from math import inf
 import datetime as dt
 from typing import Dict, List, Any, Union
+import copy
 
 ARGS_NUMBER = 2
 FILE_NAME = 1
@@ -131,7 +132,7 @@ def calculate_paths():
         total_routers += 1
 
     counter = 0
-    print(f'I am Router {_parent_router.name}')
+    #print(f'I am Router {_parent_router.name}')
     current_router = _parent_router.name
     printing_routers = _parent_router.name
     while counter != total_routers-1:
@@ -155,7 +156,7 @@ def calculate_paths():
         counter += 1
         printing_routers = printing_routers + min_node
         # TODO change this before submission
-        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        #print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
     print(calculation_table)
 
 
@@ -178,24 +179,38 @@ def check_previous_sent_timestamp(message: Message, _parent_router: Router):
     return _parent_router.global_routers_timestamp[message.name] < message.timestamp
 
 
+def forward_message(_parent_router, received_message):
+    client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
+    last_sender = received_message.last_sender
+    for neighbour in _parent_router.neighbours:
+        # dont send to the previous sender
+        if last_sender != neighbour.name and check_previous_sent_timestamp(received_message, _parent_router):
+            received_message.last_sender = _parent_router.name
+            client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
+    _parent_router.add_previous_sent_sequence(received_message)
+    _parent_router.add_router_timestamp(received_message)
+    _parent_router.update_global_routers(received_message)
+    client_socket.close()
+
+
 def udp_server(_parent_router: Router):
     server_port = int(_parent_router.port)
     server_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-    # server_socket.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
     server_socket.bind((SERVER_NAME, server_port))
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
+
     while True:
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
-        last_sender = received_message.last_sender
+        #forward_message(_parent_router, received_message)
+        last_sender = copy.deepcopy(received_message.last_sender)
         for neighbour in _parent_router.neighbours:
             # dont send to the previous sender
             if last_sender != neighbour.name and check_previous_sent_timestamp(received_message, _parent_router):
-                received_message.last_sender = _parent_router.name
+                received_message.last_sender = copy.deepcopy(_parent_router.name)
                 client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
         _parent_router.add_previous_sent_sequence(received_message)
-
         _parent_router.add_router_timestamp(received_message)
         _parent_router.update_global_routers(received_message)
 
