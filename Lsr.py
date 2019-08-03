@@ -156,7 +156,7 @@ def calculate_paths():
         counter += 1
         printing_routers = printing_routers + min_node
         # TODO change this before submission
-        #print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
     print(calculation_table)
 
 
@@ -227,6 +227,7 @@ def check_if_neighbours_alive(_parent_router: Router):
             # remove from global key
             # remove from global values
     if neighbours_to_remove is not None:
+        _parent_router.global_routers.pop(neighbours_to_remove, None)
         for neighbour in _parent_router.neighbours:
             if neighbours_to_remove == neighbour.name:
                 _parent_router.neighbours.remove(neighbour)
