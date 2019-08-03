@@ -156,7 +156,7 @@ def calculate_paths():
         counter += 1
         printing_routers = printing_routers + min_node
         # TODO change this before submission
-        # print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
     print(calculation_table)
 
 
