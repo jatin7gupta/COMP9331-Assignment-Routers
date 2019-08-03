@@ -143,7 +143,7 @@ def calculate_paths():
         total_routers += 1
 
     counter = 0
-    print(f'I am Router {_parent_router.name}')
+    #print(f'I am Router {_parent_router.name}')
     current_router = _parent_router.name
     printing_routers = _parent_router.name
     printing_list = []
@@ -166,17 +166,17 @@ def calculate_paths():
         counter += 1
         printing_list.append(min_node)
         printing_routers = printing_routers + min_node
-
-    for node in printing_list:
-        hops = node
-        current_parent = calculation_table[node][parent_]
-        while current_parent is not None:
-            hops = hops + current_parent
-            current_parent = calculation_table[current_parent][parent_]
-        # TODO change this before submission
-        #print(f'{_parent_router.name}->Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
-        print(f'Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
-    #print(calculation_table)
+    if _parent_router.name == 'D':
+        for node in printing_list:
+            hops = node
+            current_parent = calculation_table[node][parent_]
+            while current_parent is not None:
+                hops = hops + current_parent
+                current_parent = calculation_table[current_parent][parent_]
+            # TODO change this before submission
+            # print(f'{_parent_router.name}->Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
+            print(f'Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
+        print(calculation_table)
 
 
 def udp_client(_parent_router: Router):
@@ -223,7 +223,7 @@ def udp_server(_parent_router: Router):
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
-        #forward_message(_parent_router, received_message)
+        # forward_message(_parent_router, received_message)
         last_sender = copy.deepcopy(received_message.last_sender)
         for neighbour in _parent_router.neighbours:
             # dont send to the previous sender
@@ -236,12 +236,11 @@ def udp_server(_parent_router: Router):
         _parent_router.update_global_routers(received_message)
 
 
-
 def check_if_neighbours_alive(_parent_router: Router):
     neighbours_to_remove = None
     for neighbour in _parent_router.neighbours:
         if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[neighbour.name] > 3:
-            #print(f'I am {_parent_router.name} my neighbour {neighbour.name} is dead')
+            # print(f'I am {_parent_router.name} my neighbour {neighbour.name} is dead')
             # remove from LSA
             neighbours_to_remove = neighbour.name
 
@@ -252,7 +251,7 @@ def check_if_neighbours_alive(_parent_router: Router):
         for neighbour in _parent_router.neighbours:
             if neighbours_to_remove == neighbour.name:
                 _parent_router.neighbours.remove(neighbour)
-                #print(f"I am {_parent_router.name}, my new neighbours are ")
+                # print(f"I am {_parent_router.name}, my new neighbours are ")
                 # for i in _parent_router.neighbours:
                 #     print(i.name)
                 # print('')
@@ -271,7 +270,7 @@ def check_if_non_neighbours_alive(_parent_router: Router):
     for router, all_neighbours in _parent_router.global_routers.items():
         if not_my_neighbour(router, _parent_router) and router != _parent_router.name:
             if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[router] > 12:
-                #print(f'I am {_parent_router.name} -> {router} is dead')
+                # print(f'I am {_parent_router.name} -> {router} is dead')
                 router_to_remove = router
     if router_to_remove is not None:
         _parent_router.global_routers.pop(router_to_remove, None)
