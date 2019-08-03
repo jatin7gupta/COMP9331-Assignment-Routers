@@ -219,17 +219,21 @@ def udp_server(_parent_router: Router):
 def check_if_neighbours_alive(_parent_router: Router):
     for neighbour in _parent_router.neighbours:
         if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[neighbour.name] > 3:
-            pass
-            #print(f'I am {_parent_router.name}{neighbour.name} is dead')
+            print(f'I am {_parent_router.name} my neighbour {neighbour.name} is dead')
+
+
+def not_my_neighbour(router, _parent_router):
+    for neighbour in _parent_router.neighbours:
+        if router == neighbour.name:
+            return False
+    return True
 
 
 def check_if_non_neighbours_alive(_parent_router: Router):
     for router, all_neighbours in _parent_router.global_routers.items():
-        for neighbour in _parent_router.neighbours:
-            if neighbour.name != router and router != _parent_router.name:
-                if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[router] > 12:
-                    pass
-                    #print(f'I am {_parent_router.name} {router} is dead')
+        if not_my_neighbour(router, _parent_router) and router != _parent_router.name:
+            if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[router] > 12:
+                print(f'I am {_parent_router.name} -> {router} is dead')
 
 
 def check_alive(_parent_router: Router):
