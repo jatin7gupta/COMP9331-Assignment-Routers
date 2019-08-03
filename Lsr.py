@@ -218,7 +218,7 @@ def udp_server(_parent_router: Router):
                 client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
         _parent_router.add_previous_sent_sequence(received_message)
         _parent_router.add_router_timestamp(received_message)
-        _parent_router.check_if_neighbour_alive(received_message)
+        #_parent_router.check_if_neighbour_alive(received_message)
         _parent_router.update_global_routers(received_message)
 
 
