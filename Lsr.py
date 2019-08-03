@@ -156,7 +156,7 @@ def calculate_paths():
         counter += 1
         printing_routers = printing_routers + min_node
         # TODO change this before submission
-        #print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
     print(calculation_table)
 
 
@@ -164,6 +164,7 @@ def udp_client(_parent_router: Router):
     client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
     while True:
         for child in _parent_router.neighbours:
+            _parent_router.message.timestamp = dt.datetime.now().timestamp()
             message_to_send = pickle.dumps(_parent_router.message)
             server_port = int(child.port)
             client_socket.sendto(message_to_send, (SERVER_NAME, server_port))
@@ -215,6 +216,23 @@ def udp_server(_parent_router: Router):
         _parent_router.update_global_routers(received_message)
 
 
+def check_if_neighbours_alive(_parent_router: Router):
+    pass
+    # for neighbour in _parent_router.neighbours:
+    #     if _parent_router.global_routers_timestamp <
+
+
+def check_if_non_neighbours_alive(_parent_router: Router):
+    pass
+
+
+def check_alive(_parent_router: Router):
+    while True:
+        time.sleep(3)
+        check_if_neighbours_alive(_parent_router)
+        check_if_non_neighbours_alive(_parent_router)
+
+
 if len(sys.argv) == ARGS_NUMBER:
     f = open(sys.argv[FILE_NAME], "r")
     line_counter = 0
@@ -244,8 +262,8 @@ if len(sys.argv) == ARGS_NUMBER:
     client_thread = threading.Thread(target=udp_client, args=(parent_router,))
     server_thread = threading.Thread(target=udp_server, args=(parent_router,))
     calculation_thread = threading.Thread(target=calculate_paths_activator)
-    # check_alive_thread = threading.Thread(target=check_alive, args=(parent_router,))
+    check_alive_thread = threading.Thread(target=check_alive, args=(parent_router,))
     client_thread.start()
     server_thread.start()
     calculation_thread.start()
-    # check_alive_thread.start()
+    check_alive_thread.start()

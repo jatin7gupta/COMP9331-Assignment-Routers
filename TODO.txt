@@ -19,3 +19,17 @@ dont send the original router DONE
 dont send to common neighbours DONE
 dont send the forwarder neighbour and original router neighbour
 dont send message again and again - sequence no
+
+first
+	all routers check for all routers in its global table that timestamp is new!! (every 3 second for neighbour and every 13 seconds of the non neighbours
+second
+	if someone's timestamp is old
+		if check if it is my neighibour
+			if my neigibour then remove it from my lsa and remove it from my global topology
+				remove it as one router and also remove it from the neighbours of others
+
+		else:
+			remove it from my global topology
+			remove it as one router and also remove it from the neighbours of others
+
+also if someone declares if it is my neighbour and it is not in my neighbour list, add it
