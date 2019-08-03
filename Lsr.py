@@ -65,6 +65,11 @@ class Router:
             for neighbour in message.neighbours:
                 self.global_routers[message.name].append(neighbour)
 
+    def check_if_neighbour_alive(self, message):
+        for neighbour in message.neighbours:
+            if neighbour.name == self.name:
+                self.add_neighbour(neighbour)
+
 
 class Message:
     def __init__(self, sender: Router):
@@ -213,7 +218,9 @@ def udp_server(_parent_router: Router):
                 client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
         _parent_router.add_previous_sent_sequence(received_message)
         _parent_router.add_router_timestamp(received_message)
+        _parent_router.check_if_neighbour_alive(received_message)
         _parent_router.update_global_routers(received_message)
+
 
 
 def check_if_neighbours_alive(_parent_router: Router):
