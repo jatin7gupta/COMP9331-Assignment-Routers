@@ -142,7 +142,7 @@ def calculate_paths():
         total_routers += 1
 
     counter = 0
-    #print(f'I am Router {_parent_router.name}')
+    print(f'I am Router {_parent_router.name}')
     current_router = _parent_router.name
     printing_routers = _parent_router.name
     while counter != total_routers-1:
@@ -166,7 +166,8 @@ def calculate_paths():
         counter += 1
         printing_routers = printing_routers + min_node
         # TODO change this before submission
-        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        #print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        print(f'Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
     #print(calculation_table)
 
 
