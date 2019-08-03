@@ -167,16 +167,16 @@ def calculate_paths():
         printing_list.append(min_node)
         printing_routers = printing_routers + min_node
 
-        for node in printing_list:
-            hops = node
-            current_parent = calculation_table[node][parent_]
-            while current_parent is not None:
-                hops = hops + current_parent
-                current_parent = calculation_table[current_parent][parent_]
-            # TODO change this before submission
-            #print(f'{_parent_router.name}->Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
-            print(f'Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
-        #print(calculation_table)
+    for node in printing_list:
+        hops = node
+        current_parent = calculation_table[node][parent_]
+        while current_parent is not None:
+            hops = hops + current_parent
+            current_parent = calculation_table[current_parent][parent_]
+        # TODO change this before submission
+        #print(f'{_parent_router.name}->Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
+        print(f'Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
+    #print(calculation_table)
 
 
 def udp_client(_parent_router: Router):
