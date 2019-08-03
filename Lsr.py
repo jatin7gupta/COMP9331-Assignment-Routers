@@ -156,7 +156,7 @@ def calculate_paths():
         counter += 1
         printing_routers = printing_routers + min_node
         # TODO change this before submission
-        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        # print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
     print(calculation_table)
 
 
@@ -246,10 +246,14 @@ def not_my_neighbour(router, _parent_router):
 
 
 def check_if_non_neighbours_alive(_parent_router: Router):
+    router_to_remove = None
     for router, all_neighbours in _parent_router.global_routers.items():
         if not_my_neighbour(router, _parent_router) and router != _parent_router.name:
             if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[router] > 12:
                 print(f'I am {_parent_router.name} -> {router} is dead')
+                router_to_remove = router
+    if router_to_remove is not None:
+        _parent_router.global_routers.pop(router_to_remove, None)
 
 
 def check_alive(_parent_router: Router):
