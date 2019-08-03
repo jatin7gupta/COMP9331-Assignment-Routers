@@ -156,7 +156,7 @@ def calculate_paths():
         counter += 1
         printing_routers = printing_routers + min_node
         # TODO change this before submission
-        print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
+        #print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
     print(calculation_table)
 
 
@@ -217,13 +217,19 @@ def udp_server(_parent_router: Router):
 
 
 def check_if_neighbours_alive(_parent_router: Router):
-    pass
-    # for neighbour in _parent_router.neighbours:
-    #     if _parent_router.global_routers_timestamp <
+    for neighbour in _parent_router.neighbours:
+        if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[neighbour.name] > 3:
+            pass
+            #print(f'I am {_parent_router.name}{neighbour.name} is dead')
 
 
 def check_if_non_neighbours_alive(_parent_router: Router):
-    pass
+    for router, all_neighbours in _parent_router.global_routers.items():
+        for neighbour in _parent_router.neighbours:
+            if neighbour.name != router and router != _parent_router.name:
+                if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[router] > 12:
+                    pass
+                    #print(f'I am {_parent_router.name} {router} is dead')
 
 
 def check_alive(_parent_router: Router):
