@@ -162,7 +162,7 @@ def calculate_paths():
         printing_routers = printing_routers + min_node
         # TODO change this before submission
         print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
-    print(calculation_table)
+    #print(calculation_table)
 
 
 def udp_client(_parent_router: Router):
@@ -227,7 +227,7 @@ def check_if_neighbours_alive(_parent_router: Router):
     neighbours_to_remove = None
     for neighbour in _parent_router.neighbours:
         if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[neighbour.name] > 3:
-            print(f'I am {_parent_router.name} my neighbour {neighbour.name} is dead')
+            #print(f'I am {_parent_router.name} my neighbour {neighbour.name} is dead')
             # remove from LSA
             neighbours_to_remove = neighbour.name
 
@@ -238,10 +238,10 @@ def check_if_neighbours_alive(_parent_router: Router):
         for neighbour in _parent_router.neighbours:
             if neighbours_to_remove == neighbour.name:
                 _parent_router.neighbours.remove(neighbour)
-                print(f"I am {_parent_router.name}, my new neighbours are ")
-                for i in _parent_router.neighbours:
-                    print(i.name)
-                print('')
+                #print(f"I am {_parent_router.name}, my new neighbours are ")
+                # for i in _parent_router.neighbours:
+                #     print(i.name)
+                # print('')
                 break
 
 
@@ -257,7 +257,7 @@ def check_if_non_neighbours_alive(_parent_router: Router):
     for router, all_neighbours in _parent_router.global_routers.items():
         if not_my_neighbour(router, _parent_router) and router != _parent_router.name:
             if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[router] > 12:
-                print(f'I am {_parent_router.name} -> {router} is dead')
+                #print(f'I am {_parent_router.name} -> {router} is dead')
                 router_to_remove = router
     if router_to_remove is not None:
         _parent_router.global_routers.pop(router_to_remove, None)
