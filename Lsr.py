@@ -217,9 +217,24 @@ def udp_server(_parent_router: Router):
 
 
 def check_if_neighbours_alive(_parent_router: Router):
+    neighbours_to_remove = None
     for neighbour in _parent_router.neighbours:
         if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[neighbour.name] > 3:
             print(f'I am {_parent_router.name} my neighbour {neighbour.name} is dead')
+            # remove from LSA
+            neighbours_to_remove = neighbour.name
+
+            # remove from global key
+            # remove from global values
+    if neighbours_to_remove is not None:
+        for neighbour in _parent_router.neighbours:
+            if neighbours_to_remove == neighbour.name:
+                _parent_router.neighbours.remove(neighbour)
+                print(f"I am {_parent_router.name}, my new neighbours are ")
+                for i in _parent_router.neighbours:
+                    print(i.name)
+                print('')
+                break
 
 
 def not_my_neighbour(router, _parent_router):
