@@ -127,6 +127,7 @@ def calculate_paths():
 
     weight = 0
     visited_status = 1
+    parent_ = 2
 
     g = Graph(_parent_router.global_routers)
 
@@ -136,25 +137,25 @@ def calculate_paths():
     for router in _parent_router.global_routers:
         if router != _parent_router.name:
             # filling all the table with name of router
-            calculation_table[router] = [inf, False]
+            calculation_table[router] = [inf, False, None]
         else:
-            calculation_table[router] = [0.0, True]
+            calculation_table[router] = [0.0, True, None]
         total_routers += 1
 
     counter = 0
     print(f'I am Router {_parent_router.name}')
     current_router = _parent_router.name
     printing_routers = _parent_router.name
+    printing_list = []
     while counter != total_routers-1:
         # code for opening up weights
         for edge in g.graph[current_router]:
             for node, weight_status in calculation_table.items():
                 if node == edge.end and not weight_status[visited_status] and calculation_table[node][weight] > calculation_table[current_router][weight] + float(edge.weight):
                     calculation_table[node][weight] = calculation_table[current_router][weight] + float(edge.weight)
-
+                    calculation_table[node][parent_] = edge.start
         min_weight = inf
         min_node = ''
-        router_route = []
         for node, weight_status in calculation_table.items():
             if weight_status[weight] < min_weight and weight_status[visited_status] == False:
                 min_node = node
@@ -162,13 +163,20 @@ def calculate_paths():
 
         calculation_table[min_node][visited_status] = True
         current_router = min_node
-        router_route.append(min_node)
         counter += 1
+        printing_list.append(min_node)
         printing_routers = printing_routers + min_node
-        # TODO change this before submission
-        #print(f'{_parent_router.name}->Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
-        print(f'Least cost path to router {min_node}:{printing_routers} and the cost is {min_weight:.1f}')
-    #print(calculation_table)
+
+        for node in printing_list:
+            hops = node
+            current_parent = calculation_table[node][parent_]
+            while current_parent is not None:
+                hops = hops + current_parent
+                current_parent = calculation_table[current_parent][parent_]
+            # TODO change this before submission
+            #print(f'{_parent_router.name}->Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
+            print(f'Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
+        #print(calculation_table)
 
 
 def udp_client(_parent_router: Router):
