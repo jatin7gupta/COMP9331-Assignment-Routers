@@ -75,9 +75,6 @@ class Router:
                     to_be_added = Neighbours(message.name, message.port, neighbour.distance)
                     self.neighbours.append(to_be_added)
                     self.global_routers[self.name].append(to_be_added)
-                    # self.add_neighbour(neighbour)
-                    # print(f'I am router {self.name} I have added {message.name}--> {neighbour.name} to my list')
-
 
 
 class Message:
@@ -176,10 +173,7 @@ def calculate_paths():
         while current_parent is not None:
             hops = hops + current_parent
             current_parent = calculation_table[current_parent][parent_]
-        # TODO change this before submission
-        # print(f'{_parent_router.name}->Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
         print(f'Least cost path to router {node}:{hops[::-1]} and the cost is {calculation_table[node][weight]:.1f}')
-    # print(calculation_table)
 
 
 def udp_client(_parent_router: Router):
@@ -243,7 +237,6 @@ def check_if_neighbours_alive(_parent_router: Router):
     neighbours_to_remove = None
     for neighbour in _parent_router.neighbours:
         if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[neighbour.name] > 3:
-            # print(f'I am {_parent_router.name} my neighbour {neighbour.name} is dead')
             # remove from LSA
             neighbours_to_remove = neighbour.name
 
@@ -254,10 +247,6 @@ def check_if_neighbours_alive(_parent_router: Router):
         for neighbour in _parent_router.neighbours:
             if neighbours_to_remove == neighbour.name:
                 _parent_router.neighbours.remove(neighbour)
-                # print(f"I am {_parent_router.name}, my new neighbours are ")
-                # for i in _parent_router.neighbours:
-                #     print(i.name)
-                # print('')
                 break
 
 
@@ -273,7 +262,6 @@ def check_if_non_neighbours_alive(_parent_router: Router):
     for router, all_neighbours in _parent_router.global_routers.items():
         if not_my_neighbour(router, _parent_router) and router != _parent_router.name:
             if dt.datetime.now().timestamp() - _parent_router.global_routers_timestamp[router] > 12:
-                # print(f'I am {_parent_router.name} -> {router} is dead')
                 router_to_remove = router
     if router_to_remove is not None:
         _parent_router.global_routers.pop(router_to_remove, None)
@@ -290,7 +278,6 @@ if len(sys.argv) == ARGS_NUMBER:
     f = open(sys.argv[FILE_NAME], "r")
     line_counter = 0
     number_of_neighbour = 0
-    # pdb.set_trace()
     parent_router: Router
     list_file = []
     for line in f:
@@ -311,7 +298,6 @@ if len(sys.argv) == ARGS_NUMBER:
         line_counter += 1
 
     parent_router.set_message(Message(parent_router))
-    # TODO make them daemon
     client_thread = threading.Thread(target=udp_client, args=(parent_router,))
     server_thread = threading.Thread(target=udp_server, args=(parent_router,))
     calculation_thread = threading.Thread(target=calculate_paths_activator)
