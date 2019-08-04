@@ -1,11 +1,7 @@
-
-class A:
-    def __init__(self, n):
-        self.n = n
-l = []
-for i in range(5):
-    l.append(A(i))
-
-a = l[2]
-l.remove(a)
-print(l)
+import os
+os.system('start cmd.exe @cmd /k "python Lsr.py configA.txt"')
+os.system('start cmd.exe @cmd /k "python Lsr.py configB.txt"')
+os.system('start cmd.exe @cmd /k "python Lsr.py configC.txt"')
+os.system('start cmd.exe @cmd /k "python Lsr.py configD.txt"')
+os.system('start cmd.exe @cmd /k "python Lsr.py configE.txt"')
+os.system('start cmd.exe @cmd /k "python Lsr.py configF.txt"')
