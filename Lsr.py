@@ -2,9 +2,8 @@ import sys
 import socket as s
 import time
 import threading
-import pdb
 import pickle
-from collections import defaultdict, deque
+from collections import defaultdict
 from math import inf
 import datetime as dt
 from typing import Dict, List, Any, Union
@@ -70,10 +69,15 @@ class Router:
             if neighbour.name == self.name:
                 present = False
                 for my_neighbour in self.neighbours:
-                    if my_neighbour.name == neighbour.name:
+                    if my_neighbour.name == message.name:
                         present = True
                 if not present:
-                    self.add_neighbour(neighbour)
+                    to_be_added = Neighbours(message.name, message.port, neighbour.distance)
+                    self.neighbours.append(to_be_added)
+                    self.global_routers[self.name].append(to_be_added)
+                    # self.add_neighbour(neighbour)
+                    # print(f'I am router {self.name} I have added {message.name}--> {neighbour.name} to my list')
+
 
 
 class Message:
