@@ -196,20 +196,6 @@ def check_previous_sent_timestamp(message: Message, _parent_router: Router):
     return _parent_router.global_routers_timestamp[message.name] < message.timestamp
 
 
-def forward_message(_parent_router, received_message):
-    client_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
-    last_sender = received_message.last_sender
-    for neighbour in _parent_router.neighbours:
-        # dont send to the previous sender
-        if last_sender != neighbour.name and check_previous_sent_timestamp(received_message, _parent_router):
-            received_message.last_sender = _parent_router.name
-            client_socket.sendto(pickle.dumps(received_message), (SERVER_NAME, int(neighbour.port)))
-    _parent_router.add_previous_sent_sequence(received_message)
-    _parent_router.add_router_timestamp(received_message)
-    _parent_router.update_global_routers(received_message)
-    client_socket.close()
-
-
 def udp_server(_parent_router: Router):
     server_port = int(_parent_router.port)
     server_socket = s.socket(s.AF_INET, s.SOCK_DGRAM)
@@ -220,7 +206,6 @@ def udp_server(_parent_router: Router):
         message, client_address = server_socket.recvfrom(2048)
         received_message: Message = pickle.loads(message, fix_imports=True, encoding="utf-8", errors="strict")
 
-        # forward_message(_parent_router, received_message)
         last_sender = copy.deepcopy(received_message.last_sender)
         for neighbour in _parent_router.neighbours:
             # dont send to the previous sender
