@@ -1,4 +1,4 @@
-# COMP9331 Assignment
+# Link State Protocol Implementation
 ## Goal and learning objectives
 For this assignment, your task is to implement the link state routing protocol. Your program will be
 running at all routers in the specified network. At each router, the input to your program is a set of directly
